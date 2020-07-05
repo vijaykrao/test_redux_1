@@ -29,13 +29,11 @@ export const getMovies = (query,pageNumber )=> async dispatch => {
       params:{s:query,page: pageNumber},
       cancelToken: new axios.CancelToken(c => cancel = c )
   }).then(
-            // // res => dispatch(success(res)),
             res =>  dispatch(success( res.data.Search)),
             error => dispatch(failure( error))
         );
    
   } catch (error) {
-    console.error(error);
     dispatch(clearMovie ());
   }
 };
@@ -44,7 +42,7 @@ export const getMovies = (query,pageNumber )=> async dispatch => {
 export const movie = (state = [], action) => {
   switch (action.type) {
     case 'SUCCESS_MOVIE':
-      return action.movie;
+      return  state.concat(action.movie);
     case 'CLEAR_MOVIE ':
       return [];
     default:
