@@ -2,12 +2,10 @@ import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
 
-import { getMovies } from './redux';
+import { getMovies, getNewMovies } from './redux';
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 
-import {
-  Card, CardImg, CardText, CardBody,
-  CardTitle, CardSubtitle, Button
-} from 'reactstrap';
+// import {Button, Card, CardImg, CardBody,  CardTitle, CardSubtitle} from 'bootstrap';
 
 const _styles = require('./App.css')
 // App.js
@@ -21,7 +19,7 @@ export class App extends Component {
     };
 
   componentDidMount() {
-    this.updateRepoList(this.state.query,this.state.pageNumber);
+    this.updatemovieList(this.state.query,this.state.pageNumber);
 
     var options = {
       root: null, // Page as root
@@ -39,17 +37,24 @@ export class App extends Component {
 
   handleObserver(entities, observer) {
 
+    // console.log("SCROLLED", this.state.query, this.props.movies, this.props.movies.length, this.props.totalResults)
     const y = entities[0].boundingClientRect.y;
     if (this.state.prevY > y) {
-      const _page = this.state.pageNumber + 1;
-      this.updateRepoList(this.state.query, _page)
-      this.setState({pageNumber: _page})
-      // this.updateRepoList(this.state.query, this.state.PageNumber + 1)
+  
+      // if(this.props.movies && this.props.movies.length < this.props.movies.totalResults){
+        const _page = this.state.pageNumber + 1;
+        this.updatemovieList(this.state.query, _page)
+        this.setState({pageNumber: _page})
+      // }
+
+      // this.updatemovieList(this.state.query, this.state.PageNumber + 1)
     }
     this.setState({ prevY: y });
   }
 
-  updateRepoList = (query, pageNumber) => this.props.getMovies(query,pageNumber);
+  updatemovieList = (query, pageNumber) => this.props.getMovies(query,pageNumber);
+
+  newMovieList= (query, pageNumber) =>  this.props.getNewMovies(query,1);
 
   render() {
     const loadingCSS = {
@@ -60,41 +65,45 @@ export class App extends Component {
     // {console.log("MOVIES PROPS",this.props.movies )}
     return (
       <div className="_divMainStyle">
-        <h1>TEST 1 </h1>
-        <div className="marginForButtonAndSearch">
-        <input
-          type="text"
-          value={this.state.query}
-          onChange={ev => this.setState({ query: ev.target.value })}
-          placeholder="Enter Movie Name"
-        />
-        <button onClick={() => this.updateRepoList(this.state.query,this.state.pageNumber)}>
-          SEARCH
-       </button>
+        <h1>MOVIE SERACH IMDB </h1>
+        <div>
+
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" 
+              aria-describedby="button-addon2"
+              type="text"
+                  value={this.state.query}
+                  onChange={ev => this.setState({ query: ev.target.value })}
+                  placeholder="Enter Movie Name" />
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" type="button" 
+                  onClick={() => this.newMovieList(this.state.query,1)}> Search</button>
+            </div>
+          </div>
         </div>
-        <div >
-           {
-          this.props.movies.map((movie, index) => (
-            // <li key={index}>
-            //   <p>{movie.Title}</p>
-            // </li>
-            <div className="col-sm-2 _divStyleSub">
+        <div className="row col-sm-12" >
+           <div class="col-sm-4"></div>
+          <div class="col-sm-4">
+          {
+          this.props.movies ? this.props.movies.map((movie, index) => (
+            <div className="col-sm-12">
               <br />
-                <div>
-                  <Card>
-                    <CardImg top width="20%" src={movie.Poster} alt={movie.Title} />
-                    <CardBody>
-                      <CardTitle>{movie.Title}</CardTitle>
-                      <CardSubtitle>{movie.Year}</CardSubtitle>
-                      {/* <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText> */}
-                      <Button>View Big</Button>
-                    </CardBody>
-                  </Card>
+                <div class="card" >
+                  
+                    <img class="card-img-top" src={movie.Poster} alt={movie.Title} />
+                    <div>
+                      <p class="card-text">{movie.Title}</p>
+                      <p class="card-text">{movie.Year}</p>
+                      <button type="button"  class="btn btn-primary btn-primary-custom">View Big</button>
+                    </div>
+                  
                 </div>
             </div>
-          
-           ))
-           }  
+           )):""
+           } 
+          </div>
+
+        <div class="col-sm-3"></div>
         </div>
 
         <div ref={loadingRef => (this.loadingRef = loadingRef)}
@@ -108,8 +117,8 @@ export class App extends Component {
 }
 
 // AppContainer.js
-const mapStateToProps = (state, ownProps) => ({ movies: state.movie });
-const mapDispatchToProps = { getMovies };
+const mapStateToProps = (state, ownProps) => ({ movies: state.movie, totalResults : state.totalResults });
+const mapDispatchToProps = { getMovies, getNewMovies };
 const AppContainer = connect(mapStateToProps, mapDispatchToProps)(App);
 
 export default AppContainer;
