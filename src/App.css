@@ -1,0 +1,14 @@
+._divMainStyle{
+    margin:20px;
+}
+
+._divStyleSub{
+    margin: '20px';
+    span :'20px';
+    border : '2px solid black'
+
+  };
+.marginForButtonAndSearch{
+    margin-top:20px;
+    margin-bottom :20px;
+}
