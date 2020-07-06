@@ -6,9 +6,6 @@ import { getMovies, getNewMovies } from './redux';
 
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
-import Modal from './Modal'
-
-
  require('./App.css')
 
 
