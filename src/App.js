@@ -3,19 +3,25 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { getMovies, getNewMovies } from './redux';
-import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 
-// import {Button, Card, CardImg, CardBody,  CardTitle, CardSubtitle} from 'bootstrap';
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
-const _styles = require('./App.css')
-// App.js
+import Modal from './Modal'
+
+
+ require('./App.css')
+
 
 export class App extends Component {
   state = {
      query: 'war',
      pageNumber :1,
      loading: false,
-     prevY: 0
+     prevY: 0,
+     show: false,
+    title:"",
+    poster:"",
+    year:0
     };
 
   componentDidMount() {
@@ -23,31 +29,23 @@ export class App extends Component {
 
     var options = {
       root: null, // Page as root
-      rootMargin: "20px",
-      // threshold: 1.0
+      rootMargin: "20px"
     };
     // Create an observer
     this.observer = new IntersectionObserver(
       this.handleObserver.bind(this), //callback
       options
     );
-    //Observ the `loadingRef`
-    this.observer.observe(this.loadingRef);
+    //Observe the `lazy_loadingRef`
+    this.observer.observe(this.lazy_loadingRef);
   }
 
   handleObserver(entities, observer) {
-
-    // console.log("SCROLLED", this.state.query, this.props.movies, this.props.movies.length, this.props.totalResults)
-    const y = entities[0].boundingClientRect.y;
+const y = entities[0].boundingClientRect.y;
     if (this.state.prevY > y) {
-  
-      // if(this.props.movies && this.props.movies.length < this.props.movies.totalResults){
         const _page = this.state.pageNumber + 1;
         this.updatemovieList(this.state.query, _page)
         this.setState({pageNumber: _page})
-      // }
-
-      // this.updatemovieList(this.state.query, this.state.PageNumber + 1)
     }
     this.setState({ prevY: y });
   }
@@ -56,13 +54,36 @@ export class App extends Component {
 
   newMovieList= (query, pageNumber) =>  this.props.getNewMovies(query,1);
 
+
+  showModal = (m,y,p) => {
+    console.log("SHOW")
+    this.setState({ 
+      show: true, 
+      title:m,
+      poster:p,
+      year:y },()=>{console.log(this.state.show)});
+  };
+
+  onClose=()=> {
+    console.log("CLOSE")
+    this.setState({ show: false });
+  };
+
+  toggleModal = () => {
+    this.setState({
+      show: !this.state.isOpen
+    })}
+
   render() {
     const loadingCSS = {
       height: "100px",
       margin: "30px"
     };
     const loadingTextCSS = { display: this.state.loading ? "block" : "none" };
-    // {console.log("MOVIES PROPS",this.props.movies )}
+    
+
+    // The modal "window"
+
     return (
       <div className="_divMainStyle">
         <h1>MOVIE SERACH IMDB </h1>
@@ -94,9 +115,11 @@ export class App extends Component {
                     <div>
                       <p class="card-text">{movie.Title}</p>
                       <p class="card-text">{movie.Year}</p>
-                      <button type="button"  class="btn btn-primary btn-primary-custom">View Big</button>
-                    </div>
-                  
+                      <button type="button"  class="btn btn-primary btn-primary-custom" 
+
+                        onClick={()=>this.showModal(movie.Title, movie.Year, movie.Poster)}
+                      >View Big</button>
+                    </div>                  
                 </div>
             </div>
            )):""
@@ -106,10 +129,42 @@ export class App extends Component {
         <div class="col-sm-3"></div>
         </div>
 
-        <div ref={loadingRef => (this.loadingRef = loadingRef)}
+
+        <div ref={lazy_loadingRef => (this.lazy_loadingRef = lazy_loadingRef)}
           style={loadingCSS}
         >
           <span style={loadingTextCSS}>Loading...</span>
+        </div>
+        <div>
+        {
+                      this.state.show == true?
+                      <div className="backdropStyle" >
+
+                      <div className="modalStyle">
+                      <button onClick={this.onClose} className="btn btn-primary btn-primary-custom closeButton">
+                            Return to home
+                          </button>
+                      <div className="col-sm-12">
+                            <br />
+                              <div  >
+                                
+                                  <img class="card-img-top-new" src={this.state.poster} alt={this.state.title} />
+                                  <div>
+                                    <p class="card-text">Movie Name : {this.state.title}</p>
+                                    <p class="card-text">Year : {this.state.year}</p>
+                                    
+                                  </div>                  
+                              </div>
+                          </div>
+              
+                        <div className="footer">
+                          <button onClick={this.onClose} className="btn btn-danger closeButton">
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>:""
+                    }
         </div>
       </div>
     );
